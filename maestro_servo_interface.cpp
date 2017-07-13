@@ -7,6 +7,7 @@
 
 #include "maestro_servo_interface.h"
 #include <string>
+#include <stdexcept>
 
 MaestroServo::MaestroServo(unsigned char channel, int zero, int max, int min){
   // Initialize member constants
@@ -37,14 +38,19 @@ int MaestroServo::setTarget(unsigned short target)
   
 }
 
-int MaestroServo::setPercentThrust(double percent_thrust){
+int MaestroServo::setThrust(double thrust){
+  if(thrust > 1 || thrust < -1){
+    throw std::out_of_range("argument thrust must be in the range [-1, 1]");
+  }
+    
+  
   int target = m_zero;
   
-  if(percent_thrust > 0){
-    target = m_zero + percent_thrust * (m_max - m_zero);
+  if(thrust > 0){
+    target = m_zero + thrust * (m_max - m_zero);
   }
-  else if(percent_thrust < 0){
-    target = m_zero + percent_thrust * (m_zero - m_min);
+  else if(thrust < 0){
+    target = m_zero + thrust * (m_zero - m_min);
   }
 
   return MaestroServo::setTarget(target);  
@@ -53,13 +59,13 @@ int MaestroServo::setPercentThrust(double percent_thrust){
 int main(int argc, char *argv[]) {
   if(argc == 2) {
     MaestroServo hitecServo = MaestroServo(0x02, 6200, 5400, 7000);
-    double percent_thrust = std::stod(argv[1]);
-    hitecServo.setPercentThrust(percent_thrust);
+    double thrust = std::stod(argv[1]);
+    hitecServo.setThrust(thrust);
   } else if(argc == 3){
     int channel = std::stoi(argv[1]);
-    double percent_thrust = std::stod(argv[2]);
+    double thrust = std::stod(argv[2]);
     MaestroServo hitecServo = MaestroServo(channel, 6200, 5400, 7000);
-    hitecServo.setPercentThrust(percent_thrust);    
+    hitecServo.setThrust(thrust);    
   }
   return 0;
   
