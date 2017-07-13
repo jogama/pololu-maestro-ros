@@ -1,4 +1,5 @@
 // Modified from from https://www.pololu.com/docs/0J40/5.h.1
+//   by Jonathan Garcia-Mallen
 // The C syntax is in herited from there
 
 // Uses POSIX functions to send and receive data from a Maestro.
@@ -41,8 +42,7 @@ int MaestroServo::setThrust(double thrust){
   if(thrust > 1 || thrust < -1){
     throw std::out_of_range("argument thrust must be in the range [-1, 1]");
   }
-    
-  
+      
   int target = m_zero;
   
   if(thrust > 0){
