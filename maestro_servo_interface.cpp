@@ -6,7 +6,6 @@
 // NOTE: You must change the 'const char * device' line below.
 
 #include "maestro_servo_interface.h"
-#include <string>
 #include <stdexcept>
 
 MaestroServo::MaestroServo(unsigned char channel, int zero, int max, int min){
@@ -54,19 +53,4 @@ int MaestroServo::setThrust(double thrust){
   }
 
   return MaestroServo::setTarget(target);  
-}
-
-int main(int argc, char *argv[]) {
-  if(argc == 2) {
-    MaestroServo hitecServo = MaestroServo(0x02, 6200, 5400, 7000);
-    double thrust = std::stod(argv[1]);
-    hitecServo.setThrust(thrust);
-  } else if(argc == 3){
-    int channel = std::stoi(argv[1]);
-    double thrust = std::stod(argv[2]);
-    MaestroServo hitecServo = MaestroServo(channel, 6200, 5400, 7000);
-    hitecServo.setThrust(thrust);    
-  }
-  return 0;
-  
 }
