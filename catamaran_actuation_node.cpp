@@ -1,28 +1,32 @@
-
 #include "ros/ros.h"
 #include "std_msgs/Float64.h"
 #include "std_msgs/String.h"
 #include "maestro_servo_interface.h"
+
+// This is too small to justify a class. I'd use std::bind, but ROS Kinetic prefers boost. 
+#include <boost/function.hpp> 
+#include <boost/bind.hpp>
 
 /*
  Author: Jonathan GARCIA-MALLEN
 
  */
 
-void chatterCallback(const std_msgs::String::ConstPtr& msg)
-{
-  ROS_INFO("I heard: [%s]", msg->data.c_str());
-  
+void chatterCallback(const std_msgs::String::ConstPtr& msg) {
+  ROS_INFO("I heard: [%s]", msg->data.c_str());  
 }
 
-void thrust_left_callback(const std_msgs::Float64::ConstPtr& msg){
+void thrust_callback(const std_msgs::Float64::ConstPtr& msg, MaestroServo servo) {
+  double target = 0.0;//msg.data;
+  servo.setThrust(target); 
 }
 
-void thrust_right_callback(const std_msgs::Float64::ConstPtr& msg){
-}
-
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
+  // Set up the T100 thrusters with empirically derived PWM values
+  MaestroServo thruster_left  = MaestroServo(0x04, 1500, 1417,    1525.25); 
+  MaestroServo thruster_right = MaestroServo(0x05, 1500, 1422.75, 1525);
+  boost::function<void(const std_msgs::Float64::ConstPtr&)> thrust_left_cb  = boost::bind(thrust_callback, _1, thruster_left);
+  boost::function<void(const std_msgs::Float64::ConstPtr&)> thrust_right_cb = boost::bind(thrust_callback, _1, thruster_right);
   /**
    * The ros::init() function needs to see argc and argv so that it can perform
    * any ROS arguments and name remapping that were provided at the command line.
@@ -59,8 +63,8 @@ int main(int argc, char **argv)
    */
   // %Tag(SUBSCRIBER)%
   ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);  
-  ros::Subscriber sub_thrust_left = n.subscribe("thrust_left", 1000, thrust_left_callback);
-  ros::Subscriber sub_thrust_right= n.subscribe("thrust_right", 1000, thrust_right_callback);
+  ros::Subscriber sub_thrust_left = n.subscribe("thrust_left",  1000, thrust_left_cb);
+  ros::Subscriber sub_thrust_right= n.subscribe("thrust_right", 1000, thrust_right_cb);
   // %EndTag(SUBSCRIBER)%
 
   /**

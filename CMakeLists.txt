@@ -30,7 +30,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node
   catamaran_actuation_node.cpp
-  maestro_servo_interface.h
+  maestro_servo_interface.cpp
   )
 
 ## Rename C++ executable without prefix
